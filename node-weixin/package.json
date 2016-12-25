@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "bluebird": "^3.4.7",
+    "koa": "^1.2.4",
+    "path": "^0.12.7",
+    "raw-body": "^2.1.7",
+    "request": "^2.79.0",
+    "sha1": "^1.1.1",
+    "xml2js": "^0.4.17"
+  }
+}
