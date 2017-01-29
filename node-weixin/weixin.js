@@ -2,7 +2,7 @@
 var config = require('./config');
 var Wechat = require('./wechat/wechat')
 var wechatApi =new Wechat(config.wechat)
-
+var _ =require('ladash')
 exports.reply = function* (next) {
 	var message = this.weixin;
 	
@@ -66,6 +66,21 @@ exports.reply = function* (next) {
 				musicUrl:'http://link.hhtjim.com/xiami/1770409076.mp3',
 				hqMusicUrl:'http://link.hhtjim.com/xiami/1770409076.mp3',
 				thumbMediaId: data.media_id
+			}
+		}else if (content === '8'){
+			var data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg', {type : 'image'});
+			reply = {
+				type : 'image',
+				mediaId : data.media_id
+			}
+		}else if (content === '9'){
+			var data = yield wechatApi.uploadMaterial('video', __dirname + '/2.jpg', {type : 'video', description: {"title":"视频1", "introduction":"视频1"}});
+			console.log(data);
+			reply = {
+				type : 'video',
+				mediaId : data.media_id,
+				title : '视频1',
+				description: '视频1',
 			}
 		}
 		this.body = reply
