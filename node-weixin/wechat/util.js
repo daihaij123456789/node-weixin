@@ -11,6 +11,8 @@ exports.parseXMLAsync=function (xml) {
 		})
 	})
 }
+
+
 function fromatMessage(result) {
 	var message={};
 	if (typeof result==='object') {
@@ -40,6 +42,9 @@ function fromatMessage(result) {
 	return message;
 }
 exports.fromatMessage=fromatMessage;
+
+
+
 exports.tpl= function (content, message) {
 	var info = {};
 	var type = 'text';

@@ -5,8 +5,6 @@ var wechatApi =new Wechat(config.wechat)
 var _ =require('ladash')
 exports.reply = function* (next) {
 	var message = this.weixin;
-	
-	//console.log(message);
 	if(message.MsgType==='event'){
 		if (message.Event==='subscribe') {
 			this.body = '欢迎订阅\r\n'
@@ -58,7 +56,6 @@ exports.reply = function* (next) {
 			}
 		}else if (content === '7'){
 			var data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg');
-			console.log(data.media_id);
 			reply = {
 				type : 'music',
 				title : '音乐1',
@@ -74,14 +71,67 @@ exports.reply = function* (next) {
 				mediaId : data.media_id
 			}
 		}else if (content === '9'){
-			var data = yield wechatApi.uploadMaterial('video', __dirname + '/2.jpg', {type : 'video', description: {"title":"视频1", "introduction":"视频1"}});
-			console.log(data);
+			var data = yield wechatApi.uploadMaterial('video', __dirname + '/1.mp4', {type : 'video', description: {"title":"视频1", "introduction":"视频1"}});
 			reply = {
 				type : 'video',
 				mediaId : data.media_id,
 				title : '视频1',
 				description: '视频1',
 			}
+		}else if (content === '10'){
+			var picData = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg', {});
+			console.log(picData.media_id); 
+			var media = {
+			articles: [{
+					title : '标题10',
+					thumb_media_id: picData.media_id,
+					author: '蒋海勇',
+					digest: '摘要',
+					show_cover_pic: 1,
+					content: '内容',
+					content_source_url: 'http://baidu.com/'
+				}]
+			}
+
+			data = yield wechatApi.uploadMaterial('news', media, {});
+
+			data = yield wechatApi.fetchMaterial(data.media_id, 'news', {});
+			var items = data.news_item;
+			var news = [];
+			items.forEach(function (item) {
+				news.push({
+					title : item.title,
+					description: item.digest,
+					prcUrl: picData.url,
+					url: item.url
+				})
+			})
+			reply = news
+		}else if (content === '11'){
+			var counts = yield wechatApi.countMaterial();
+			console.log(JSON.stringify(counts));
+
+			var results = yield [
+				wechatApi.batchMaterial({type:'image', offset: 0, count: 10}),
+				wechatApi.batchMaterial({type:'video', offset: 0, count: 10}),
+				wechatApi.batchMaterial({type:'voice', offset: 0, count: 10}),
+				wechatApi.batchMaterial({type:'news', offset: 0, count: 10})
+			]
+			console.log(JSON.stringify(results));
+			reply = '1'
+		}else if (content === '12'){
+			var group = yield wechatApi.createGroup('dahai');
+			console.log('新分组/n');
+			console.log(group);
+
+			var groups = yield wechatApi.fecthGroups();
+			console.log('分组列表/n');
+			console.log(groups);
+
+			var groupCheck = yield wechatApi.checkGroup(message.FromUserName);
+			console.log('查看我分组/n');
+			console.log(groupCheck);
+			reply = 'Group done'
 		}
 		this.body = reply
 	}
