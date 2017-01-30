@@ -120,18 +120,40 @@ exports.reply = function* (next) {
 			console.log(JSON.stringify(results));
 			reply = '1'
 		}else if (content === '12'){
-			var group = yield wechatApi.createGroup('dahai');
-			console.log('新分组/n');
-			console.log(group);
+			/*var tag1 = yield wechatApi.createTag('dahai1');
+			console.log('新标签/n');
+			console.log(tag1);*/
 
-			var groups = yield wechatApi.fecthGroups();
-			console.log('分组列表/n');
-			console.log(groups);
+			/*var tags1 = yield wechatApi.fecthTags();
+			console.log('标签列表/n');
+			console.log(tags1);*/
 
-			var groupCheck = yield wechatApi.checkGroup(message.FromUserName);
-			console.log('查看我分组/n');
-			console.log(groupCheck);
-			reply = 'Group done'
+
+			var tagCheck1 = yield wechatApi.checkTag(message.FromUserName);
+			console.log('查看我的标签/n');
+			console.log(tagCheck1);
+
+			/*var updata1 = yield wechatApi.updataTag(101, 'dahai2');
+			console.log('更新101/n');
+			console.log(updata1);*/
+			/*var move1 = yield wechatApi.moveTag(message.FromUserName, 100);
+			console.log('移动到100/n');
+			console.log(move1);*/
+
+			/*var del = yield wechatApi.deleteTag(100);
+			console.log('删除100/n');
+			console.log(del)*/
+
+			/*var tags2 = yield wechatApi.fecthTags();
+			console.log('标签列表/n');
+			console.log(tags2);*/
+			/*var move1 = yield wechatApi.batchUesrTag([message.FromUserName], 102);
+			console.log('我移到102/n');
+			var fecthUesr = yield wechatApi.fecthUesrTag(102);
+			console.log('标签列表/n');
+			console.log(fecthUesr);*/
+
+			reply = 'Tag done'
 		}
 		this.body = reply
 	}
