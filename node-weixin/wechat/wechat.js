@@ -29,7 +29,14 @@ var api = {
         userlist: prefix + 'user/tag/get?',//标签下粉丝列表
         batchtag: prefix + 'tags/members/batchtagging?',//批量标标签
         batchuntag: prefix + 'tags/members/batchuntagging?',//批量取消标签
-        del: prefix + 'tags/delete?',//删除标签
+        del: prefix + 'tags/delete?'//删除标签
+    },
+    user:{
+        remark: prefix + 'user/info/updateremark?',//用户备注
+        fecth: prefix + 'user/info?',//获取用户基本信息
+        batchFecth: prefix + 'user/info/batchget?',//获取用户基本信息
+        list: prefix + 'user/get?'//获取用户列表
+        //access_token=ACCESS_TOKEN&next_openid=NEXT_OPENID
     }
 }
 
@@ -504,7 +511,7 @@ Wechat.prototype.deleteTag = function(id) {
 }
 
 //获取标签下用户列表
-Wechat.prototype.fecthUesrTag = function(id, count) {
+Wechat.prototype.fecthUesrsTag = function(id, count) {
     var that = this;
     return new Promise(function(resolve, reject) {
         that
@@ -532,8 +539,97 @@ Wechat.prototype.fecthUesrTag = function(id, count) {
 }
 
 
+//备注用户
+Wechat.prototype.remarkUser = function(openId, remark) {
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.user.remark + 'access_token=' + data.access_token;
+                var form = {
+                        openid: openId,
+                        remark: remark
+                }
+                request({ method: 'POST', url: url, body: form, json: true }).then(function(response) {
+                        var _data = response.body;
+                        
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Delete Tag Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
 
+//单个或者批量获取用户基本信息
+Wechat.prototype.fecthUsers = function(openIds, lang) {
+    var that = this;
+    var lang = lang || 'zh_CN';
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var options = {
+                    json: true
+                }
+                if (_.isArray(openIds)) {
+                    options.url = api.user.batchFecth + 'access_token=' + data.access_token;
+                    var form = {
+                        user_list: openIds
+                    }
+                    options.body = form;
+                    options.method = 'POST';
+                }else{
+                    options.url = api.user.fecth + 'access_token=' + data.access_token + '&openid=' + openIds + '&lang=' +lang; 
+                    options.method = 'GET';
+                }
 
+                request(options).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Fecth User Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+//获取用户列表
+Wechat.prototype.listUsers = function(openId) {
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.user.list + 'access_token=' + data.access_token;
+                if (openId) {
+                    url += '&next_openid=' + openId;
+                }
+                request({ method: 'GET', url: url, json: true }).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('List User Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
 
 
 

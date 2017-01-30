@@ -147,13 +147,33 @@ exports.reply = function* (next) {
 			/*var tags2 = yield wechatApi.fecthTags();
 			console.log('标签列表/n');
 			console.log(tags2);*/
-			/*var move1 = yield wechatApi.batchUesrTag([message.FromUserName], 102);
+			/*var move1 = yield wechatApi.batchUesrsTag([message.FromUserName], 102);
 			console.log('我移到102/n');
 			var fecthUesr = yield wechatApi.fecthUesrTag(102);
 			console.log('标签列表/n');
 			console.log(fecthUesr);*/
 
 			reply = 'Tag done'
+		}else if (content === '13'){
+			/*var user = yield wechatApi.fecthUsers(message.FromUserName, 'en');
+			console.log(user);*/ 
+			var openIds = [{
+				openid: 'oe0IEv89v1gEkLfpf9tzZCWv7uNU',
+				lang: 'zh-CN'
+			},
+			{
+				openid: 'oe0IEv6srsMjcEDJCeKHhqlSXPSw',
+				lang: 'zh-CN'
+			}]
+			var users = yield wechatApi.fecthUsers(openIds);
+			console.log(users);
+
+			reply = JSON.stringify(users)
+		}else if (content === '14'){
+			var users = yield wechatApi.listUsers('oe0IEv6srsMjcEDJCeKHhqlSXPSw');
+			console.log(users);
+
+			reply = 'ok'
 		}
 		this.body = reply
 	}
