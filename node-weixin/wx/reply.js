@@ -1,8 +1,17 @@
 'use strict'
-var config = require('./config');
-var Wechat = require('./wechat/wechat')
-var wechatApi =new Wechat(config.wechat)
+var config = require('../config');
+var Wechat = require('../wechat/wechat');
+var path = require('path')
+var menu =require('./menu')
 var _ =require('ladash')
+
+var wechatApi =new Wechat(config.wechat)
+/*wechatApi.deleteMenu().then(function () {
+	return wechatApi.createMenu(menu)
+})
+.then(function (msg) {
+		console.log(msg);
+})*/
 exports.reply = function* (next) {
 	var message = this.weixin;
 	if(message.MsgType==='event'){
@@ -23,6 +32,32 @@ exports.reply = function* (next) {
 			this.body = '扫一下'
 		}else if(message.Event === 'VIEW'){
 			this.body = '点击菜单链接' + message.EventKey;
+		}else if(message.Event === 'scancode_push'){
+			console.log(message.ScanCodeInfo.ScanType);
+			console.log(message.ScanCodeInfo.ScanResult);
+			this.body = '扫码推事件' + message.EventKey;
+		}else if(message.Event === 'scancode_waitmsg'){
+			console.log(message.ScanCodeInfo.ScanType);
+			console.log(message.ScanCodeInfo.ScanResult);
+			this.body = '扫码带提示' + message.EventKey;
+		}else if(message.Event === 'pic_sysphoto'){
+			console.log(message.SendPicsInfo.Count);
+			console.log(message.SendPicsInfo.PicList);
+			this.body = '系统拍照发图' + message.EventKey;
+		}else if(message.Event === 'pic_photo_or_album'){
+			console.log(message.SendPicsInfo.Count);
+			console.log(message.SendPicsInfo.PicList);
+			this.body = '拍照或者相册发图' + message.EventKey;
+		}else if(message.Event === 'pic_weixin'){
+			console.log(message.SendPicsInfo.Count);
+			console.log(message.SendPicsInfo.PicList);
+			this.body = '微信相册发图' + message.EventKey;
+		}else if(message.Event === 'location_select'){
+			console.log(message.SendLocationInfo.Location_X);
+			console.log(message.SendLocationInfo.Location_Y);
+			console.log(message.SendLocationInfo.Scale);
+			console.log(message.SendLocationInfo.Poiname);
+			this.body = '发送位置' + message.EventKey;
 		}
 	}else if(message.MsgType === 'text'){
 		var content = message.Content;
@@ -41,13 +76,13 @@ exports.reply = function* (next) {
 				url: 'http://baidu.com/'
 			}]
 		}else if (content === '5'){
-			var data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg');
+			var data = yield wechatApi.uploadMaterial('image', path.join(__dirname, '../2.jpg'));
 			reply = {
 				type : 'image',
 				mediaId : data.media_id
 			}
 		}else if (content === '6'){
-			var data = yield wechatApi.uploadMaterial('video', __dirname + '/1.mp4');
+			var data = yield wechatApi.uploadMaterial('video', path.join(__dirname, '../1.mp4'));
 			reply = {
 				type : 'video',
 				mediaId : data.media_id,
@@ -55,7 +90,7 @@ exports.reply = function* (next) {
 				description: '视频1',
 			}
 		}else if (content === '7'){
-			var data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg');
+			var data = yield wechatApi.uploadMaterial('image', path.join(__dirname, '../2.jpg'));
 			reply = {
 				type : 'music',
 				title : '音乐1',
@@ -65,13 +100,15 @@ exports.reply = function* (next) {
 				thumbMediaId: data.media_id
 			}
 		}else if (content === '8'){
-			var data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg', {type : 'image'});
+			var data = yield wechatApi.uploadMaterial('image', path.join(__dirname, '../2.jpg'), {type : 'image'});
+			console.log(data.media_id);
 			reply = {
 				type : 'image',
 				mediaId : data.media_id
 			}
 		}else if (content === '9'){
-			var data = yield wechatApi.uploadMaterial('video', __dirname + '/1.mp4', {type : 'video', description: {"title":"视频1", "introduction":"视频1"}});
+			var data = yield wechatApi.uploadMaterial('video', path.join(__dirname, '../1.mp4'), {type : 'video', description: {"title":"视频1", "introduction":"视频1"}});
+			console.log(data);
 			reply = {
 				type : 'video',
 				mediaId : data.media_id,
@@ -79,22 +116,20 @@ exports.reply = function* (next) {
 				description: '视频1',
 			}
 		}else if (content === '10'){
-			var picData = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg', {});
-			console.log(picData.media_id); 
+			var picData = yield wechatApi.uploadMaterial('image', path.join(__dirname, '../2.jpg'), {});
 			var media = {
-			articles: [{
-					title : '标题10',
-					thumb_media_id: picData.media_id,
-					author: '蒋海勇',
-					digest: '摘要',
-					show_cover_pic: 1,
-					content: '内容',
-					content_source_url: 'http://baidu.com/'
-				}]
+				articles: [{
+						title : '标题10',
+						thumb_media_id: picData.media_id,
+						author: '蒋海勇',
+						digest: '摘要',
+						show_cover_pic: 1,
+						content: '内容',
+						content_source_url: 'http://baidu.com/'
+					}]
 			}
 
 			data = yield wechatApi.uploadMaterial('news', media, {});
-
 			data = yield wechatApi.fetchMaterial(data.media_id, 'news', {});
 			var items = data.news_item;
 			var news = [];
@@ -123,22 +158,31 @@ exports.reply = function* (next) {
 			/*var tag1 = yield wechatApi.createTag('dahai1');
 			console.log('新标签/n');
 			console.log(tag1);*/
-
-			/*var tags1 = yield wechatApi.fecthTags();
-			console.log('标签列表/n');
-			console.log(tags1);*/
-
-
 			var tagCheck1 = yield wechatApi.checkTag(message.FromUserName);
 			console.log('查看我的标签/n');
 			console.log(tagCheck1);
+			var tags1 = yield wechatApi.fecthTags();
+			console.log('标签列表/n');
+			console.log(tags1);
+
+			/*var move1 = yield wechatApi.batchUesrTag(['oe0IEv89v1gEkLfpf9tzZCWv7uNU','oe0IEv6srsMjcEDJCeKHhqlSXPSw'],102);
+			console.log('我移到2/n')
+			console.log(move1);*/
+			//yield wechatApi.deleteTag(101);
+			
+			/*var tags1 = yield wechatApi.fecthTags();
+			console.log('标签列表/n');
+			console.log(tags1);
+
+			var move1 = yield wechatApi.batchUesrTag(['oe0IEv6srsMjcEDJCeKHhqlSXPSw'],2);
+			console.log('我移到2/n')
+			console.log(move1);
+			
 
 			/*var updata1 = yield wechatApi.updataTag(101, 'dahai2');
 			console.log('更新101/n');
 			console.log(updata1);*/
-			/*var move1 = yield wechatApi.moveTag(message.FromUserName, 100);
-			console.log('移动到100/n');
-			console.log(move1);*/
+			
 
 			/*var del = yield wechatApi.deleteTag(100);
 			console.log('删除100/n');
@@ -174,8 +218,36 @@ exports.reply = function* (next) {
 			console.log(users);
 
 			reply = 'ok'
+		}else if (content === '15'){
+			var image = {
+				media_id :'EZLFu9HSX1xnvfD08kE3NSrE6rs4T--cSiGZerDfhPk'
+			}
+			var content = {
+				content : '您好'
+			}
+			var msgData = yield wechatApi.sendByGroup('image',image, 102);
+			reply = 'yeah'
+			console.log(msgData);
+		}else if (content === '16'){
+			var image = {
+				media_id :'EZLFu9HSX1xnvfD08kE3NSrE6rs4T--cSiGZerDfhPk'
+			}
+			var mpnews = {
+				media_id :'EZLFu9HSX1xnvfD08kE3Ne9TpfAEQIRoq1e--1oWMHA'
+			}
+
+			var text = {
+				content : '蒋明珠，SB'
+			}
+			var msgData = yield wechatApi.previewMass('text',text, 'oe0IEv6srsMjcEDJCeKHhqlSXPSw');
+			//var msgData = yield wechatApi.previewMass('text',text, 'oe0IEv6srsMjcEDJCeKHhqlSXPSw');
+			console.log(msgData);
+			reply = 'yeah'
+		}else if (content === '17'){
+			var msgData = yield wechatApi.checkMass('')
 		}
 		this.body = reply
 	}
 	yield next
+	
 }

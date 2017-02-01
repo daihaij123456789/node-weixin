@@ -37,7 +37,24 @@ var api = {
         batchFecth: prefix + 'user/info/batchget?',//获取用户基本信息
         list: prefix + 'user/get?'//获取用户列表
         //access_token=ACCESS_TOKEN&next_openid=NEXT_OPENID
-    }
+    },
+    mass:{
+        group: prefix + 'message/mass/sendall?',//群发与标签消息
+        openId: prefix + 'message/mass/send?',//openId群发消息
+        del: prefix + 'message/mass/delete?',//删除群发消息
+        preview: prefix + 'message/mass/preview?',//预览消息
+        check: prefix + 'message/mass/get?',//查询消息状态
+    },
+    menu:{
+        create: prefix + 'menu/create?',//创建菜单 
+        fecth: prefix + 'menu/get?',//查询菜单
+        current: prefix + 'get_current_selfmenu_info?',//获取菜单配置
+        /*updata: prefix + 'tags/update?',//更新标签
+        userlist: prefix + 'user/tag/get?',//标签下粉丝列表
+        batchtag: prefix + 'tags/members/batchtagging?',//批量标标签
+        batchuntag: prefix + 'tags/members/batchuntagging?',//批量取消标签*/
+        del: prefix + 'menu/delete?'//删除菜单
+    } 
 }
 
 function Wechat(opts) {
@@ -90,7 +107,6 @@ Wechat.prototype.fetchAccessToken = function() {
             that.access_token = data.access_token;
             that.expires_in = data.expires_in;
             that.saveAccessToken(data);
-            
             return Promise.resolve(data);
         })
 }
@@ -138,7 +154,7 @@ Wechat.prototype.uploadMaterial = function(type, material, permanent) {
                 if (!permanent) {
                     url +=  '&type=' + type;
                 }else{
-                    form.access_token = data.access_token
+                    form.access_token = data.access_token;
                 }
                 var options = {
                     method: 'POST',
@@ -148,10 +164,12 @@ Wechat.prototype.uploadMaterial = function(type, material, permanent) {
                 if(type === 'news'){
                     options.body = form
                 }else{
-                    options.formData = form
+                    options.formData = form;
+                    options.url +=  '&type=' + type;
                 }
                 request(options).then(function(response) {
                         var _data = response.body;
+                        console.log(_data);
                         if (_data) {
                             resolve(_data)
                         } else {
@@ -439,7 +457,6 @@ Wechat.prototype.batchUesrTag = function(openIds, id) {
                 }
                 request({ method: 'POST', url: url, body: form, json: true }).then(function(response) {
                         var _data = response.body;
-                        
                         if (_data) {
                             resolve(_data)
                         } else {
@@ -528,7 +545,7 @@ Wechat.prototype.fecthUesrsTag = function(id, count) {
                         if (_data) {
                             resolve(_data)
                         } else {
-                            throw new Error('Delete Tag Fails');
+                            throw new Error('Fecth Tag Fails');
                         }
                     })
                     .catch(function(err) {
@@ -632,6 +649,262 @@ Wechat.prototype.listUsers = function(openId) {
 }
 
 
+//分组群发
+Wechat.prototype.sendByGroup = function(type, message, groupId) {
+    var that = this;
+    var msg = {
+        filter: {}
+    };
+    msg[type] = message
+    msg.msgtype = type
+    if (!groupId) {
+        msg.filter.is_to_all = true
+    }else{
+        msg.filter= {
+                is_to_all: false,
+                tag_id: groupId
+            }
+    }
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.mass.group + 'access_token=' + data.access_token;
+                request({ method: 'POST', url: url, body: msg, json: true }).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Send to Group Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+
+//openId群发服务号可用
+Wechat.prototype.sendByOpenId = function(type, message, openIds) {
+    var that = this;
+    var msg = {
+        msgtype : type,
+        touser  : openIds
+    };
+    msg[type] = message;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.mass.openId + 'access_token=' + data.access_token;
+                console.log(url);
+                request({ method: 'POST', url: url, body: msg, json: true }).then(function(response) {
+                        var _data = response.body;
+                        console.log(_data);
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Send to OponId Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+
+//openId群发服务号可用
+Wechat.prototype.deleteMass = function(magId) {
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.mass.del + 'access_token=' + data.access_token;
+                var form ={
+                    msg_id : magId
+                }
+                request({ method: 'POST', url: url, body: form, json: true }).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Delete Mass Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+
+//预览消息
+Wechat.prototype.previewMass = function(type, message, openId) {
+    var that = this;
+    var msg = {
+        msgtype : type,
+        touser  : openId
+    };
+    msg[type] = message;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.mass.preview + 'access_token=' + data.access_token;
+                request({ method: 'POST', url: url, body: msg, json: true }).then(function(response) {
+                        var _data = response.body;
+                        console.log(_data);
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Preview Mass Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+//openId群发服务号可用
+Wechat.prototype.checkMass = function(msgId) {
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.mass.check + 'access_token=' + data.access_token;
+                var form = {
+                    msg_id : msgId
+                }
+                request({ method: 'POST', url: url, body: form, json: true }).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Preview Mass Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+//创建菜单
+Wechat.prototype.createMenu = function(menu) {
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.menu.create + 'access_token=' + data.access_token;
+                console.log(url);
+                request({ method: 'POST', url: url, body: menu, json: true }).then(function(response) {
+                        var _data = response.body;
+                        console.log(_data);
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Cerate Menu Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+//查询菜单
+Wechat.prototype.fecthMenu = function() {
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.menu.fecth + 'access_token=' + data.access_token;
+                request({ method: 'GET', url: url, json: true }).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Fecth Menu Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+//删除菜单
+Wechat.prototype.deleteMenu = function() {
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        that
+            .getAccessToken()
+            .then(function(data) {
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    return that.updateAccessToken();
+                }
+                if (that.isValidAccessToken(data)) {
+                    return Promise.resolve(data);
+                } else {
+                    return that.updateAccessToken();
+                }
+            })
+            .then(function(data) {
+                var url = api.menu.del + 'access_token=' + data.access_token;
+                request({ method: 'GET', url: url, json: true }).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Delete Menu Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+//查询菜单配置
+Wechat.prototype.getCurrentMenu = function() {
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.menu.current + 'access_token=' + data.access_token;
+                request({ method: 'GET', url: url, json: true }).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Get current Menu Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
 
 
 
@@ -651,11 +924,11 @@ Wechat.prototype.listUsers = function(openId) {
 Wechat.prototype.reply = function() {
     var content = this.body;
     var message = this.weixin;
+    var xml = util.tpl(content, message);
     this.status = 200;
     this.type = 'application/xml';
-    var xml = util.tpl(content, message);
     this.body = xml;
-    //console.log(xml);
+    console.log(xml);
 }
 
 
