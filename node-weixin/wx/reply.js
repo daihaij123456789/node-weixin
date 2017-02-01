@@ -278,6 +278,16 @@ exports.reply = function* (next) {
 			var longUrl = 'http://www.baidu.com/';
 			var shortData = yield wechatApi.shortUrlQrcode(null, longUrl);
 			reply = shortData.short_url;
+		}else if (content === '20'){
+			var semanticData = {
+				query: '黑衣人',
+				city: '广州',
+				category: 'movie',
+				uid: message.FromUserName
+			} 
+			var _semanticData = yield wechatApi.semantic(semanticData);
+			console.log(semanticData);
+			reply = JSON.stringify(_semanticData);
 		}
 		this.body = reply
 	}

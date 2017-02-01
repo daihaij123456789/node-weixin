@@ -38,7 +38,7 @@ module.exports = function(opts, handler) {
             var content = yield util.parseXMLAsync(data);
 
             var message = util.fromatMessage(content.xml);
-
+            
 
             this.weixin = message;
             yield handler.call(this, next);

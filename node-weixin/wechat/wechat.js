@@ -6,9 +6,10 @@ var request = Promise.promisify(require('request'));
 var _ =require('lodash')
 var prefix = 'https://api.weixin.qq.com/cgi-bin/';
 var mpPrefix = 'https://mp.weixin.qq.com/cgi-bin/';
-
+var semanticUrl = 'https://api.weixin.qq.com/semantic/semproxy/search?';
 var api = {
     accessToken: prefix + 'token?grant_type=client_credential',//access_token
+    semanticUrl: semanticUrl,
     temporary:{    
         upload: prefix + 'media/upload?',//临时素材上传
         fetch: prefix + 'media/get?'//临时素材获取
@@ -57,7 +58,9 @@ var api = {
         create: prefix + 'qrcode/create?',//生成带参数的二维码
         show: mpPrefix + 'showqrcode?',//通过ticket换取二维码
         shorturl: prefix + 'shorturl?',//生成带参数的二维码
-
+    },
+    ticket:{
+        get: prefix + 'ticket/getticket?',//获取api_ticket
     }
 }
 
@@ -67,10 +70,12 @@ function Wechat(opts) {
     this.appSecret = opts.appSecret;
     this.getAccessToken = opts.getAccessToken;
     this.saveAccessToken = opts.saveAccessToken;
+    this.getTicket = opts.getTicket;
+    this.saveTicket = opts.saveTicket;
     this.fetchAccessToken();
     
 }
-
+//判断access_tokens是否过期
 Wechat.prototype.isValidAccessToken = function(data) {
     if (!data || !data.access_token || !data.expires_in) {
         return false
@@ -86,15 +91,26 @@ Wechat.prototype.isValidAccessToken = function(data) {
     }
 }
 
+//判断api_ticket是否过期
+Wechat.prototype.isValidTicket = function(data) {
+    if (!data || !data.ticket || !data.expires_in) {
+        return false
+    }
+    var ticket = data.ticket;
+    var expires_in = data.expires_in;
+    var now = (new Date().getTime());
+
+    if (ticket && now < expires_in) {
+        return true
+    } else {
+        return false
+    }
+}
+
 //获取access_tokens
 Wechat.prototype.fetchAccessToken = function() {
     var that = this;
-    if (this.access_token && this.expires_in) {
-        if (this.isValidAccessToken(this)) {
-            return Promise.resolve(this);
-        }
-    }
-    this.getAccessToken()
+    return this.getAccessToken()
         .then(function(data) {
             try {
                 data = JSON.parse(data);
@@ -108,13 +124,32 @@ Wechat.prototype.fetchAccessToken = function() {
             }
         })
         .then(function(data) {
-            that.access_token = data.access_token;
-            that.expires_in = data.expires_in;
             that.saveAccessToken(data);
             return Promise.resolve(data);
         })
 }
 
+//获取api_ticket，用于SDK
+Wechat.prototype.fetchTicket = function(access_token) {
+    var that = this;
+    return this.getTicket()
+        .then(function(data) {
+            try {
+                data = JSON.parse(data);
+            } catch (e) {
+                return that.updateTicket(access_token);
+            }
+            if (that.isValidTicket(data)) {
+                return Promise.resolve(data);
+            } else {
+                return that.updateTicket(access_token);
+            }
+        })
+        .then(function(data) {
+            that.saveTicket(data);
+            return Promise.resolve(data);
+        })
+}
 //更新access_tokens
 Wechat.prototype.updateAccessToken = function() {
     var appID = this.appID;
@@ -131,7 +166,20 @@ Wechat.prototype.updateAccessToken = function() {
     })
 
 }
+//更新api_ticket，用于SDK
+Wechat.prototype.updateTicket = function(access_token) {
+    var url = api.ticket.get + 'access_token=' + access_token + '&type=jsapi';
+    return new Promise(function(resolve, reject) {
+        request({ url: url, json: true }).then(function(response) {
+            var data = response.body;
+            var now = (new Date().getTime());
+            var expires_in = now + (data.expires_in - 20) * 1000;
+            data.expires_in = expires_in;
+            resolve(data)
+        })
+    })
 
+}
 //上传素材
 Wechat.prototype.uploadMaterial = function(type, material, permanent) {
     var that = this;
@@ -956,6 +1004,31 @@ Wechat.prototype.shortUrlQrcode = function(action, url) {
                             resolve(_data)
                         } else {
                             throw new Error('Create ShortUrlQrcode Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+
+//创建语义
+Wechat.prototype.semantic = function(semanticData) {
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.semanticUrl + 'access_token=' + data.access_token;
+                semanticData.appid = data.appID;
+                request({ method: 'POST', url: url, body: semanticData, json: true }).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Semantic Fails');
                         }
                     })
                     .catch(function(err) {
