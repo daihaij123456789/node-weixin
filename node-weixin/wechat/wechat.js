@@ -4,7 +4,9 @@ var util = require('./util');
 var fs = require('fs');
 var request = Promise.promisify(require('request'));
 var _ =require('lodash')
-var prefix = 'https://api.weixin.qq.com/cgi-bin/'
+var prefix = 'https://api.weixin.qq.com/cgi-bin/';
+var mpPrefix = 'https://mp.weixin.qq.com/cgi-bin/';
+
 var api = {
     accessToken: prefix + 'token?grant_type=client_credential',//access_token
     temporary:{    
@@ -49,12 +51,14 @@ var api = {
         create: prefix + 'menu/create?',//创建菜单 
         fecth: prefix + 'menu/get?',//查询菜单
         current: prefix + 'get_current_selfmenu_info?',//获取菜单配置
-        /*updata: prefix + 'tags/update?',//更新标签
-        userlist: prefix + 'user/tag/get?',//标签下粉丝列表
-        batchtag: prefix + 'tags/members/batchtagging?',//批量标标签
-        batchuntag: prefix + 'tags/members/batchuntagging?',//批量取消标签*/
         del: prefix + 'menu/delete?'//删除菜单
-    } 
+    },
+    qrcode: {
+        create: prefix + 'qrcode/create?',//生成带参数的二维码
+        show: mpPrefix + 'showqrcode?',//通过ticket换取二维码
+        shorturl: prefix + 'shorturl?',//生成带参数的二维码
+
+    }
 }
 
 function Wechat(opts) {
@@ -905,6 +909,61 @@ Wechat.prototype.getCurrentMenu = function() {
     })
 }
 
+//创建二维码
+Wechat.prototype.createQrcode = function(qr) {
+    var that = this;
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.qrcode.create + 'access_token=' + data.access_token;
+                request({ method: 'POST', url: url, body: qr, json: true }).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Create Qrcode Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
+
+//通过ticket换取二维码
+Wechat.prototype.showQrcode = function(ticket) {
+    return api.qrcode.show + 'ticket=' + encodeURL(ticket);
+}
+
+//创建长链接转短链接
+Wechat.prototype.shortUrlQrcode = function(action, url) {
+    var that = this;
+    var action = action || 'long2short'
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                var url = api.qrcode.shorturl + 'access_token=' + data.access_token;
+                var form = {
+                    action : action,
+                    long_url : url
+                }
+                request({ method: 'POST', url: url, body: form, json: true }).then(function(response) {
+                        var _data = response.body;
+                        if (_data) {
+                            resolve(_data)
+                        } else {
+                            throw new Error('Create ShortUrlQrcode Fails');
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err)
+                    })
+            })
+    })
+}
 
 
 

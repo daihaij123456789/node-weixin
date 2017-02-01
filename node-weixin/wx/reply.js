@@ -245,6 +245,39 @@ exports.reply = function* (next) {
 			reply = 'yeah'
 		}else if (content === '17'){
 			var msgData = yield wechatApi.checkMass('')
+		}else if (content === '18'){
+			var tempQr = {
+				expire_seconds : 400000,
+				action_name : 'QR_SCENE',
+				action_info : {
+					scene : {
+						scene_id : 123
+					}
+				}
+			}
+			var permQr = {
+				action_name : 'QR_LIMIT_SCENE',
+				action_info : {
+					scene : {
+						scene_id : 123
+					}
+				}
+			}
+			var permStrQr = {
+				action_name : 'QR_LIMIT_STR_SCENE',
+				action_info : {
+					scene : {
+						scene_str : 'abc'
+					}
+				}
+			}
+			var qrCode1 = yield wechatApi.createQrcode(tempQr)
+			var qrCode2 = yield wechatApi.createQrcode(permQr)
+			var qrCode3 = yield wechatApi.createQrcode(permStrQr)
+		}else if (content === '19'){
+			var longUrl = 'http://www.baidu.com/';
+			var shortData = yield wechatApi.shortUrlQrcode(null, longUrl);
+			reply = shortData.short_url;
 		}
 		this.body = reply
 	}
