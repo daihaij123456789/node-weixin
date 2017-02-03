@@ -904,19 +904,7 @@ Wechat.prototype.deleteMenu = function() {
     var that = this;
     return new Promise(function(resolve, reject) {
         that
-            .getAccessToken()
-            .then(function(data) {
-                try {
-                    data = JSON.parse(data);
-                } catch (e) {
-                    return that.updateAccessToken();
-                }
-                if (that.isValidAccessToken(data)) {
-                    return Promise.resolve(data);
-                } else {
-                    return that.updateAccessToken();
-                }
-            })
+            .fetchAccessToken()
             .then(function(data) {
                 var url = api.menu.del + 'access_token=' + data.access_token;
                 request({ method: 'GET', url: url, json: true }).then(function(response) {

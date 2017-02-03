@@ -1,18 +1,10 @@
 'use strict'
-var config = require('../config');
-var Wechat = require('../wechat/wechat');
 var path = require('path')
-var menu =require('./menu')
-var _ =require('ladash')
-
-var wechatApi =new Wechat(config.wechat)
-/*wechatApi.deleteMenu().then(function () {
-	return wechatApi.createMenu(menu)
-})
-.then(function (msg) {
-		console.log(msg);
-})*/
-exports.reply = function* (next) {
+var wx = require('./index')
+var _ = require('ladash')
+var co = require('co')
+var wechatApi = wx.getWechat();
+exports.reply = co.wrap(function* (next) {
 	var message = this.weixin;
 	if(message.MsgType==='event'){
 		if (message.Event==='subscribe') {
@@ -291,6 +283,6 @@ exports.reply = function* (next) {
 		}
 		this.body = reply
 	}
-	yield next
-	
-}
+
+	yield next()
+})

@@ -1,0 +1,1 @@
+D:\Mongodb\mongod.exe -dbpath D:\Mongodb\movie
