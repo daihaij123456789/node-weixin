@@ -1,16 +1,15 @@
 'use strict'
 var Koa=require('koa');
-//var wechat = require('./wechat/g');
 var path=require('path');
 var fs=require('fs');
-//var reply = require('./wx/reply');
-var menu =require('./wx/menu')
-//var wx =require('./wx/index')
+var menu =require('./wx/menu');
 var mongoose = require('mongoose');
 var router = require('koa-router')();
 var game = require('./app/controllers/game');
 var wechat = require('./app/controllers/wechat');
-
+var views = require('koa-views')
+var jade = require('jade')
+var koa_static = require('koa-static')
 
 
 /*var wechatApi = wx.getWechat();
@@ -42,16 +41,14 @@ var walk = function (path) {
 }
 walk(models_path);
 
-
-
 var app=new Koa();
-
-
-router.get('/movie', game.movie)
+app.use(koa_static(__dirname + '/public'));
+app.use(views(__dirname + '/views', { extension: 'jade' }))
+router.get('/voiceMovie', game.guess)
+router.get('/movie/:id', game.find)
 router.get('/wx', wechat.hear)
 router.post('/wx', wechat.hear)
 app.use(router['routes']());
 app.use(router.allowedMethods());
-//app.use(wechat(wx.wechatOptions.wechat, reply.reply));
 app.listen(1234);
 console.log("listen :1234");

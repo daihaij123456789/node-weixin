@@ -1,0 +1,10 @@
+.hd {
+	    padding: 2em 0;
+	}
+.page_title {
+    text-align: center;
+    font-size: 30px;
+    color: #3cc51f;
+    font-weight: 400;
+    margin: 0 15%;
+}

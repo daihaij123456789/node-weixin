@@ -1,0 +1,32 @@
+extends ../wechat/wechat
+
+block content
+	link(rel="stylesheet", type="text/css" href="/css/style.css")
+	.page
+		.hd
+			h1.page_title= movie.title
+		.bd
+			.weui_cells_title 电影介绍
+			.weui_cells
+				.weui_cell
+					.weui_cell_bd.weui_cell_primary
+						p 电影名字
+					.weui_cell_ft= movie.title
+				.weui_cell
+					.weui_cell_bd.weui_cell_primary
+						p 导演
+					.weui_cell_ft= movie.director
+				.weui_cell
+					.weui_cell_bd.weui_cell_primary
+						p 国家
+					.weui_cell_ft= movie.country
+				.weui_cell
+					.weui_cell_bd.weui_cell_primary
+						p 上映年代
+					.weui_cell_ft= movie.year
+			.weui_cells
+				section
+					img(src="#{movie.poster}", style="width: 100%")
+			.weui_article
+				section
+					p= movie.summary

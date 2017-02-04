@@ -1048,7 +1048,6 @@ Wechat.prototype.reply = function() {
     this.status = 200;
     this.type = 'application/xml';
     this.body = xml;
-    console.log(xml);
 }
 
 

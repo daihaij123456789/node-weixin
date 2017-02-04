@@ -5,8 +5,9 @@ var mongoose = require('mongoose'),
     ObjectId = Schema.Types.ObjectId;
 // 电影数据类型
 var MovieSchema = new Schema({
-  doctor: String,                     // 导演
+  director: String,                     // 导演
   title: String,                      // 标题
+  doubanId: String,                   // 豆瓣Id微信
   country: String,                    // 上映城市
   summary: String,                    // 简介
   flash: String,                      // 片源地址
@@ -14,7 +15,7 @@ var MovieSchema = new Schema({
   year: Number,                       // 上映时间
   aka: String,                        // 又名
   casts: String,                      // 主演
-  genres: String,                     // 类型
+  genres: [String],                     // 类型
   rating: String,                     // 豆瓣评分
   pv:{                                // 访问量
     type:Number,
