@@ -56,7 +56,7 @@ function updateMovies(movie) {
   request(options).then(function(response) {
     var data = response[1];
     _.extend(movie, {
-       country: data.countrys[0],
+       country: data.country || '',
        language: data.language,
        summary: data.summary
     })
