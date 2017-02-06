@@ -6,7 +6,7 @@ var _ = require('lodash')
 var request = Promise.promisify(require('request'));
 var Category = require('../models/movie/movie_category')
     //movie首页
-exports.findAll = co.wrap(function* () {
+exports.findAll = co.wrap(function*() {
     var categories = yield Category
         .find({})
         .populate({
@@ -19,7 +19,7 @@ exports.findAll = co.wrap(function* () {
 })
 
 // searchByCategory 搜索页面
-exports.searchByCategory = co.wrap(function* (catId) {
+exports.searchByCategory = co.wrap(function*(catId) {
     var categories = yield Category
         .find({})
         .populate({
@@ -32,7 +32,7 @@ exports.searchByCategory = co.wrap(function* (catId) {
 })
 
 // searchByName 搜索页面
-exports.searchByName = co.wrap(function* (q) {
+exports.searchByName = co.wrap(function*(q) {
     var movies = yield Movie
         .find({ title: new RegExp(q + '.*', 'i') })
         .exec()
@@ -41,7 +41,7 @@ exports.searchByName = co.wrap(function* (q) {
 })
 
 // searchById 搜索页面
-exports.searchById = co.wrap(function* (id) {
+exports.searchById = co.wrap(function*(id) {
     var movie = yield Movie
         .findOne({ _id: id })
         .exec()
@@ -54,24 +54,40 @@ function updateMovies(movie) {
         url: 'http://api.douban.com/v2/movie/subject/' + movie.doubanId,
         json: true,
     }
-    request(options).then(function (response) {
+    request(options).then(function(response) {
         var data = response.body;
-        console.log(data.countries);
+        if (data.countries) {
+            var country = data.countries[0]
+        }
+        if (data.rating) {
+            var rating = data.rating.average; // 豆瓣评分
+        }
+        if (data.casts) {
+            var castNames = '';
+            data.casts.forEach(function(item, index) {
+                castNames += item.name;
+                // 最后一个主演不添加'/'
+                if (index < data.casts.length - 1) {
+                    castNames += '/';
+                }
+            });
+        }
         _.extend(movie, {
-            country: data.countries[0] || '',
-            language: data.language,
-            summary: data.summary
+            country: country || '',
+            summary: data.summary || '',
+            rating: rating || '',
+            casts: castNames || ''
         })
         var genres = movie.genres;
         if (genres && genres.length > 0) {
-            console.log(movie);
             var cateArray = [];
-            genres.forEach(function (genre) {
-                cateArray.push(function* () {
-                    var cat = yield Category.findOne({name: genre }).exce();
+            genres.forEach(function(genre) {
+                cateArray.push(function*() {
+                    var cat = yield Category.findOne({ name: genre }).exce();
                     if (cat) {
                         cat.movies.push(movie._id);
                         yield cat.save()
+                        yield movie.save()
                     } else {
                         cat = new Category({
                             name: genre,
@@ -83,9 +99,8 @@ function updateMovies(movie) {
                     }
                 })
             })
-            co(function* () {
-              yield cateArray
-              console.log('测试');
+            co.wrap(function*() {
+                yield cateArray
             })
         } else {
             movie.save()
@@ -93,7 +108,7 @@ function updateMovies(movie) {
     })
 }
 // searchByDouban 搜索页面
-exports.searchByDouban = co.wrap(function* (q) {
+exports.searchByDouban = co.wrap(function*(q) {
     var options = {
         url: 'http://api.douban.com/v2/movie/search?q='
     }
@@ -107,32 +122,89 @@ exports.searchByDouban = co.wrap(function* (q) {
     }
     if (subjects.length > 0) {
         var queryArray = [];
-        subjects.forEach(function(item) {
-            queryArray.push(function* () {
-                var movie = yield Movie.findOne({ doubanId: item.id });
-                if (movie) {
-                    movies.push(movie)
-                } else {
-                    var directors = item.directors || [];
-                    var director = directors[0] || {};
-                    movie = new Movie({
-                        director: director.name || '', 
-                        title: item.title || '', 
-                        doubanId: item.id, 
-                        poster: item.images.large || '', 
-                        year: item.year || '', 
-                        genres: item.genres || [], 
-                        
-                    })
-                    movie = yield movie.save();
-                    movies.push(movie)
-                }
-            })
+        subjects.forEach(function(item, index) {
+            if (index < 5) {
+                queryArray.push(function*() {
+                    var movie = yield Movie.findOne({ doubanId: item.id });
+                    if (movie) {
+                        movies.push(movie)
+                    } else {
+                        var directors = item.directors || [];
+                        var director = directors[0] || {};
+                        movie = new Movie({
+                            director: director.name || '',
+                            title: item.title || '',
+                            doubanId: item.id,
+                            poster: item.images.large || '',
+                            year: item.year || '',
+                            genres: item.genres || [],
+
+                        })
+                        movie = yield movie.save();
+                        movies.push(movie)
+                    }
+                })
+            }
+
         })
         yield queryArray
-        movies.forEach(function(movie) {
-            updateMovies(movie)
-        })   
+
     }
+    movies.forEach(function(movie) {
+        var options = {
+            url: 'http://api.douban.com/v2/movie/subject/' + movie.doubanId,
+            json: true,
+        }
+        request(options).then(function(response) {
+            var data = response.body;
+            if (data.countries) {
+                var country = data.countries[0]
+            }
+            if (data.rating) {
+                var rating = data.rating.average; // 豆瓣评分
+            }
+            if (data.casts) {
+                var castNames = '';
+                data.casts.forEach(function(item, index) {
+                    castNames += item.name;
+                    // 最后一个主演不添加'/'
+                    if (index < data.casts.length - 1) {
+                        castNames += '/';
+                    }
+                });
+            }
+            _.extend(movie, {
+                country: country || '',
+                summary: data.summary || '',
+                rating: rating || '',
+                casts: castNames || ''
+            })
+            var genres = movie.genres;
+
+            if (genres && genres.length > 0) {
+                var cateArray = [];
+                genres.forEach(function(genre) {
+                    cateArray.push(function*() {
+                        var cat = yield Category.findOne({ name: genre }).exce();
+                        if (cat) {
+                            cat.movies.push(movie._id);
+                            yield cat.save()
+                        } else {
+                            cat = new Category({
+                                name: genre,
+                                movies: [movie._id]
+                            })
+                            cat = yield cat.save();
+                            movie.category = cat._id;
+                        }
+                    })
+                })
+                co.wrap(function*() {
+                    yield cateArray
+                })
+            }
+            movie.save()
+        })
+    })
     return movies
 })
