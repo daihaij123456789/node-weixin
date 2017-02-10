@@ -36,6 +36,7 @@ router.get('/wx', Wechat.hear)
 router.post('/wx', Wechat.hear)
 
     /*============== 公共路由 ==============*/
+
     // 用户注册路由
 router.get('/signup', User.showSignup);
 router.post('/user/signup/', User.signup);

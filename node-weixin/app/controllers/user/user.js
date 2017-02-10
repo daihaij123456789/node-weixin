@@ -1,36 +1,34 @@
 'use strict';
 var User = require('../../models/user/user');// 用户数据模型               
 var ccap = require('ccap')();                    // 加载验证码模块
-var co = require('co');
-var captcha ;                                      // 申明验证码变量
+var co = require('co');                                 // 申明验证码变量
 var moment = require('moment');
 /* 用户注册及登录框中验证码生成器控制器 */
 exports.captcha = co.wrap(function*(ctx,next) {
   if(ctx.url === '/favicon.ico') {
     return ctx.end('');
   }
-  return next().then(() => {
-        var ary = ccap.get();
-        captcha  = ary[0];
-        //var buf = ary[1];
-        ctx.body = captcha;
-        ctx.session.captcha = captcha;
-    });
-})
+    var ary = ccap.get();
+    var captchaA  = ary[0];
+    /*//var buf = ary[1];*/
+    ctx.body = captchaA;
+    ctx.session.captchaA = captchaA
 
+})
 /* 用户注册控制器 */
 exports.signup = co.wrap(function*(ctx,next) {
   
-  var user = ctx.request.body.user,                       // 获取post请求中的用户数据
+  var user1 = ctx.request.body.user,                       // 获取post请求中的用户数据
       _user = {};
-  user = user.split('&');
-  for(var i = 0; i < user.length; i++) {
-    var p = user[i].indexOf('='),
-        name = user[i].substring(0,p),
-        value = user[i].substring(p+1);
+  user1 = user1.split('&');
+  
+  for(var i = 0; i < user1.length; i++) {
+    var p = user1[i].indexOf('='),
+        name = user1[i].substring(0,p),
+        value = user1[i].substring(p+1);
     _user[name] = value;
   }
-
+  
   var _name = _user.name || '',
       _captcha = _user.captcha || '';
 
@@ -40,9 +38,10 @@ exports.signup = co.wrap(function*(ctx,next) {
     if(user) {
       ctx.body = {data:0};
     }else{
+      var captchaB = ctx.session.captchaA
       // 验证码存在
-      if (captcha) {
-        if(_captcha.toLowerCase() !== captcha.toLowerCase()) {
+      if (captchaB) {
+        if(_captcha.toLowerCase() !== captchaB.toLowerCase()) {
           ctx.body = {data:1};             // 输入的验证码不相等
         }else {
           // 数据库中没有该用户名，将其数据生成新的用户数据并保存至数据库
@@ -50,6 +49,7 @@ exports.signup = co.wrap(function*(ctx,next) {
           yield user.save();
             ctx.session.user = user;         // 将当前登录用户名保存到session中
             ctx.body = {data:2};       // 注册成功
+            
         }
       }
     }
@@ -86,9 +86,11 @@ exports.signin = co.wrap(function*(ctx,next) {
     var isMatch = yield user.comparePassword(_password);
       // 密码匹配
       if(isMatch) {
+        var captchaB = ctx.session.captchaA 
         // 验证码存在
-        if (_captcha) {
-          if(_captcha.toLowerCase() !== captcha.toLowerCase()) {
+        if (captchaB) {
+          if(_captcha.toLowerCase() !== captchaB.toLowerCase()) {
+            console.log('成功');
             ctx.body = {data:2};                   // 输入的验证码不相等
           }else {
             ctx.session.user = user;                // 将当前登录用户名保存到session中
@@ -125,6 +127,7 @@ exports.list = co.wrap(function*(ctx,next) {
       yield ctx.render('pages/user/user_list', {
           title: '大海电影用户列表页',
           users: users,
+          logo:'movie',
           moment:moment
       })
 })

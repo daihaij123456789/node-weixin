@@ -200,7 +200,7 @@ exports.del = co.wrap(function*(ctx, next) {
         var id = ctx.query.id;
         // 如果id存在则服务器中将该条数据删除并返回删除成功的json数据
         if (id) {
-            var music = yield Music.finOne({ _id: id }).exec();
+            var music = yield Music.findOne({ _id: id }).exec();
             // 查找包含这条音乐的音乐分类
             var musicCategory = yield MusicCategory.findOne({ _id: music.musicCategory }).exec();
             // 在音乐分类musics数组中查找该值所在位置
