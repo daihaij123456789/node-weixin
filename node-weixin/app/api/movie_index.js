@@ -93,7 +93,7 @@ function updateMovies(movie) {
                             name: genre,
                             movies: [movie._id]
                         })
-                        cat = yield cat.save();
+                        yield cat.save();
                         movie.category = cat._id;
                         yield movie.save()
                     }
@@ -203,7 +203,7 @@ exports.searchByDouban = co.wrap(function*(q) {
                     yield cateArray
                 })
             }
-            movie.save()
+           movie.save()
         })
     })
     return movies
