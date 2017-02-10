@@ -1,4 +1,3 @@
-'use strict'
 wx.config({
     debug: false,
     appId: 'wx9226474d248fd396',

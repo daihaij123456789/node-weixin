@@ -90,7 +90,7 @@ exports.reply = co.wrap(function* (next) {
 							title: movie.title,
 							description: movie.title,
 							picUrl: movie.poster,
-							url: 'http://dahaimovie.tunnel.qydev.com/movie/' + movie._id
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/movie/' + movie._id
 						});
 					}
 				})

@@ -1,0 +1,131 @@
+@charset "UTF-8";
+body{
+  background-color: rgba(204, 118, 32,0.5);
+
+}
+.row-one{
+	margin-top: -20px;
+}
+.detail-header .intro {
+    color: #000;
+}
+.panel-modify{
+	color:#000;
+}
+.row-two{
+	padding-right: 2px;
+    padding-top:50px;
+}
+.panel-content{
+	width: 100%;
+    padding-right: 15px;
+    padding-top: 10px;
+}
+.textarea-lyics {
+    background-color:rgba(16,16,16,0.4);
+    height: 239px;
+}
+audio {
+    height: 20px;
+}
+.detaile-content textarea{
+    border: 1.5px ragba(0 0 0 0.55) solid;
+    color: #000;
+}
+
+
+
+.activated{
+  color:#33b;
+  font-weight:bold;
+  background:#ddf;
+  font-size: 22px;
+ }
+ #lrc{
+  text-align:center;
+  width: 100%;
+  height:400px;
+  overflow:hidden;
+  border:2px solid #ddd;
+  box-shadow:2px 2px 2px silver;
+ }
+ .lyrics-container{
+  position:relative;
+  width:100%;
+  height:80%;
+  overflow:hidden;
+  margin-top: 20px;
+
+ }
+ .info{
+    padding-top:20px;
+ }
+ .lyrics-title{
+    color: #eff5ee;
+ }
+ .info p{
+    margin-left: 20px;
+    font-weight:bold;
+    font-size:16px;
+ }
+ .lyrics-container2{
+  position:absolute;
+ }
+ #lrc p{
+    width: 445px;
+  text-indent:0;
+  margin:0;
+  padding:6px;
+ }
+ .music-title,.album,.artist{
+  margin:0;
+  padding:4px;
+  text-indent:0;
+  text-align:left;
+ }
+
+
+
+.control-play{
+  text-align: center;
+}
+.control-play .type {
+    display: inline-block; 
+    margin: 0 auto;
+    text-align: center;
+    color: #000;
+} 
+.control-play .type::after {
+    clear: both;
+    content: "";
+    display: block;
+}
+
+.control-play .type li {
+    list-style: outside none none;
+    border-bottom: 1px solid #000;
+    border-right: 1px solid #000;
+    border-top: 1px solid #000;
+    cursor: pointer;
+    float: left;
+    height: 30px;
+    line-height: 30px;
+    width: 80px;
+}
+.control-play .type li:first-child {
+    border-bottom-left-radius: 5px;
+    border-left: 1px solid #000;
+    border-top-left-radius: 5px;
+}
+.control-play .type li:last-child {
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+}
+.control-play .type .selected01 {
+    background: #fff none repeat scroll 0 0;
+    color: #000;
+}
+
+audio#audio-paly1 {
+    display: none;
+}

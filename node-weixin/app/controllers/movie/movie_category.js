@@ -1,70 +1,56 @@
 'use strict';
-
+var moment = require('moment');
 var Category = require('../../models/movie/movie_category')// 电影分类模型                 // 电影分类模型
-
+var co = require('co');
 // 新建电影分类控制器
-exports.new = function(req, res) {
-  res.render('movie/movie_category_admin', {
+exports.new = co.wrap(function* (ctx, next){
+  yield ctx.render('pages/movie/movie_category_admin', {
     title:'大海电影后台分类录入页',
     logo:'movie',
-    category:{}
+    category:{},
+    moment:moment
   });
-};
-
+}) 
 // 电影分类存储控制器
-exports.save = function(req, res) {
-  var category = req.body.category;
+exports.save = co.wrap(function* (ctx, next){
+  var category = ctx.request.body.category;
   // 判断新创建的电影分类是否已存在，避免重复输入
-  Category.findOne({name:category.name}, function(err, _category) {
-    if (err) {
-      console.log(err);
-    }
+  var _category = yield Category.findOne({name:category.name}).exec();
     if(_category) {
       console.log('电影分类已存在');
       res.redirect('/admin/movie/movieCategory/list');
     }else {
       var newCategory = new Category(category);
-      newCategory.save(function(err) {
-        if (err) {
-          console.log(err);
-        }
+      yield newCategory.save()
         res.redirect('/admin/movie/movieCategory/list');
-      });
     }
-  });
-};
-
+})
 // 电影分类控制器
-exports.list = function(req, res) {
-  Category
+exports.list = co.wrap(function* (ctx, next){
+  var categories = yield Category
     .find({})
     .populate({
       path:'movies',                        // 通过movies属性查找电影分类所对应的电影名称
       select:'title',
     })
-    .exec(function(err,categories) {
-      if(err) {
-        console.log(err);
-      }
-      res.render('movie/movie_category_list',{
+    .exec();
+      yield ctx.render('pages/movie/movie_category_list',{
         title:'大海电影分类列表页',
         logo:'movie',
-        categories:categories
-      });
-    });
-};
+        categories:categories,
+        moment:moment
+      })
+}) 
 
 // 电影分类列表删除控制器
-exports.del = function(req,res) {
+exports.del = co.wrap(function* (ctx,next) {
   // 获取客户端Ajax发送的URL值中的id值
-  var id  = req.query.id;
+  var id  = ctx.query.id;
   if(id) {
     // 如果id存在则服务器中将该条数据删除并返回删除成功的json数据
-    Category.remove({_id:id},function(err) {
-      if(err) {
-          console.log(err);
-      }
-      res.json({success:1});
-    });
-  }
-};
+      yield Category.remove({_id:id}).exec();
+      this.body ={success:1};
+    }else{
+      this.body ={success:0};
+    }  
+})
