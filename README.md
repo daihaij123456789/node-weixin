@@ -1,9 +1,9 @@
 #采用koa2开发movie-weixin网站，[网站地址](http://dahaimovie.tunnel.qydev.com)
-=本项目基于Scott的7天公众号开发课程与Loogeek的源码之上改写电影和音乐网站。Loogeek的源码的[github地址](https://github.com/Loogeek/douban_Website)。<br/>
+##本项目基于Scott的7天公众号开发课程与Loogeek的源码之上改写电影和音乐网站。Loogeek的源码的[github地址](https://github.com/Loogeek/douban_Website)。<br/>
 `注意：（npm安装参考这里，注意ccap模块在window下，必须先安装Python与vs2015(c++编译环境)）`
 <br/>=技术堆栈：nodejs +koa2 +gulp +jade +weixinApi。
-`加入微信公众号开发,该源码包括所有微信API接口调用。<br/>`
--项目前端搭建:<br>
+`加入微信公众号开发,该源码包括所有微信API接口调用。`<br/>
+##项目前端搭建:<br/>
 
 使用jQuery和Bootsrap完成网站前端JS脚本和样式处理; 使用Sass完成电影和音乐首页样式的编写; 使用validate.js完成对账号登录注册的判断; 使用jQuery lazyload插件对首页图片的延迟加载; 使用fullpage.js完成电影宣传页面制作; 前后端的数据请求交互通过Ajax完成; 3. 本地开发环境搭建:
 
