@@ -8,6 +8,7 @@ var UserSchema = new Schema({
     unique: true,
     type: String
   },
+  openid:String,//微信验证
   password: String,
   // 0: nomal user
   // 1: verified user

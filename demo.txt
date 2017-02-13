@@ -1,0 +1,2 @@
+采用koa2开发movie-weixin-music网站与公众号，大约2个月时间。网站地址(http://dahaimovie.tunnel.qydev.com)，公众号dahai405999测试号。项目github地址https://github.com/daihaij123456789/node-weixin/，本文菜鸟，欢迎提意见。
+本项目基于Scott的7天公众号开发课程与Loogeek的源码之上改写电影和音乐网站。Loogeek的源码的github地址(https://github.com/Loogeek/douban_Website)。

@@ -40,7 +40,13 @@ block content
             p.intro #{movie.summary}
         .detaile.col-md-6.col-xs-6
           if movie
-            embed(src="#{movie.flash}" allowFullScreen="true" quality="high" width="100%" height="400" align="middle" allowScriptAcess="always" type="application/x-shockwave-flash")
+            if movie.flash
+              embed(src="#{movie.flash}" allowFullScreen="true" quality="high" width="100%" height="400" align="middle" allowScriptAcess="always" type="application/x-shockwave-flash")
+            else if movie.poster.indexOf('http') > -1
+              img(src="#{movie.poster}" alt="#{movie.title}" width="720px")
+            else
+              // 电影海报为自行上传
+              img(src="/upload/movie/#{movie.poster}" alt="#{movie.title}")
     .row
       .row-tow
         .detaile-content.panel-content
