@@ -11,3 +11,6 @@
 li.media {
     list-style: none;
 }
+.weui_cells_textarea {
+    border: #3cc51f 2px solid;
+}

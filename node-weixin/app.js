@@ -4,12 +4,14 @@ var path=require('path');
 var session = require('koa-session');
 //var session = require('koa-generic-session');
 //var redisStore = require('koa-redis');
+
 var logger = require('koa-logger');
 var bodyParser = require('koa-bodyparser');
 var koaBody = require('koa-body');
 var convert = require('koa-convert');
 var multer = require('koa-multer');
-//var wx =require('./wx/index');
+var menu = require('./wx/menu');
+var wx =require('./wx/index');
 var mongoose = require('mongoose');
 var router = require('koa-router')();
 var views = require('koa-views');

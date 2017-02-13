@@ -51,7 +51,7 @@ $(function() {
 
 
     // 评论区提交评论点击事件
-    $('#comments button').on('click', function(event) {
+    $('#comments button').tap(function(event) {
         // 阻止表单默认发送到服务器行为并发送Ajax请求
         event.preventDefault();
         $.ajax({

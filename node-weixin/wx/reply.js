@@ -1,64 +1,149 @@
 'use strict'
 var path = require('path')
-var wx = require('./index')
 var _ = require('ladash')
 var co = require('co')
 var Movie = require('../app/api/movie_index')
-var wechatApi = wx.getWechat();
-exports.reply = co.wrap(function* (next) {
-	var message = this.weixin;
-	if(message.MsgType==='event'){
-		if (message.Event==='subscribe') {
-			this.body = '欢迎订阅大海休闲\n' +
+var Music= require('../app/api/music_index')
+var help = '欢迎订阅大海休闲\n' +
 			'回复1~3,测试文字回复\n' +
 			'回复4,测试图文回复\n' +
 			'回复电影首页,进入电影首页\n' +
 			'回复音乐首页,进入音乐首页\n' +
-			'回复登陆,进入微信登陆页面\n' +
-			'回复游戏,进入微信游戏页面\n' +
 			'回复电影名字,查询电影信息\n' +
 			'回复音乐名字,查询音乐信息\n' +
 			'回复语音,使用语音查询信息\n' +
 			'点击 <a href="http://dahaimovie.tunnel.qydev.com/voiceMovie">语音查电影</a>'+
-			'点击 <a href="http://dahaimovie.tunnel.qydev.com/voiceMusic">语音查音乐</a>'	
+			'点击 <a href="http://dahaimovie.tunnel.qydev.com/voiceMusic">语音查音乐</a>';
+exports.reply = co.wrap(function* (next) {
+	var message = this.weixin;
+	if(message.MsgType==='event'){
+		if (message.Event==='subscribe') {
+			this.body = help;
 		}else if(message.Event === 'unsubscribe'){
 			this.body ='';
 			console.log('取消');
 		}else if(message.Event === 'LOCTION'){
 			this.body = '位置是' + message.latitude  + '/' + message.Longitude + '-' + message.Precisoin
 		}else if(message.Event === 'CLICK'){
-			this.body = '点击菜单' + message.EventKey
-		}else if(message.Event === 'SCAN'){
-			console.log('关注后扫描' +  message.EventKey + ' ' +message.Ticket); 
-			this.body = '扫一下'
-		}else if(message.Event === 'VIEW'){
-			this.body = '点击菜单链接' + message.EventKey;
-		}else if(message.Event === 'scancode_push'){
-			console.log(message.ScanCodeInfo.ScanType);
-			console.log(message.ScanCodeInfo.ScanResult);
-			this.body = '扫码推事件' + message.EventKey;
-		}else if(message.Event === 'scancode_waitmsg'){
-			console.log(message.ScanCodeInfo.ScanType);
-			console.log(message.ScanCodeInfo.ScanResult);
-			this.body = '扫码带提示' + message.EventKey;
-		}else if(message.Event === 'pic_sysphoto'){
-			console.log(message.SendPicsInfo.Count);
-			console.log(message.SendPicsInfo.PicList);
-			this.body = '系统拍照发图' + message.EventKey;
-		}else if(message.Event === 'pic_photo_or_album'){
-			console.log(message.SendPicsInfo.Count);
-			console.log(message.SendPicsInfo.PicList);
-			this.body = '拍照或者相册发图' + message.EventKey;
-		}else if(message.Event === 'pic_weixin'){
-			console.log(message.SendPicsInfo.Count);
-			console.log(message.SendPicsInfo.PicList);
-			this.body = '微信相册发图' + message.EventKey;
-		}else if(message.Event === 'location_select'){
-			console.log(message.SendLocationInfo.Location_X);
-			console.log(message.SendLocationInfo.Location_Y);
-			console.log(message.SendLocationInfo.Scale);
-			console.log(message.SendLocationInfo.Poiname);
-			this.body = '发送位置' + message.EventKey;
+			var news = [];
+			if(message.EventKey === 'movie_hot'){
+				let movies = yield Movie.findHotMovies(-1,5);
+				movies.forEach(function(movie){
+					news.push({
+							title: movie.title,
+							description: movie.title,
+							picUrl: movie.poster,
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+						});
+				})
+			}else if(message.EventKey === 'movie_cold'){
+				let movies = yield Movie.findHotMovies(1,5);
+				movies.forEach(function(movie){
+					news.push({
+							title: movie.title,
+							description: movie.title,
+							picUrl: movie.poster,
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+						});
+				})
+			}else if(message.EventKey === 'movie_action'){
+				let cat = yield Movie.findMoviesByCate('正在上映');
+				console.log(cat.movies);
+				cat.movies.forEach(function(movie, index){
+					if(index<5){
+						news.push({
+							title: movie.title,
+							description: movie.title,
+							picUrl: movie.poster,
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+						});
+					}
+					
+				})
+			}else if(message.EventKey === 'movie_car'){
+				let cat = yield Movie.findMoviesByCate('即将上映');
+				cat.movies.forEach(function(movie,index){
+					if(index<5){
+						news.push({
+							title: movie.title,
+							description: movie.title,
+							picUrl: movie.poster,
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+						});
+					}
+				})
+			}else if(message.EventKey === 'movie_k'){
+				let cat = yield Movie.findMoviesByCate('本周口碑榜');
+				cat.movies.forEach(function(movie,index){
+					if(index<5){
+						news.push({
+							title: movie.title,
+							description: movie.title,
+							picUrl: movie.poster,
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+						});
+					}
+				})
+			}else if(message.EventKey === 'music_hot'){
+				let musics = yield Music.findHotMusics(-1,5);
+				musics.forEach(function(muisc,index){
+						news.push({
+							title: muisc.title,
+							description: muisc.singer,
+							picUrl: muisc.image,
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + muisc._id
+						});
+				})
+			}else if(message.EventKey === 'music_cold'){
+				let musics = yield Music.findHotMusics(1,5);
+				musics.forEach(function(muisc,index){
+						news.push({
+							title: muisc.title,
+							description: muisc.singer,
+							picUrl: muisc.image,
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + muisc._id
+						});
+				})
+			}else if(message.EventKey === 'music_b'){
+				let cat = yield Music.findMusicsByCate('编辑推荐');
+				cat.muiscs.forEach(function(muisc,index){
+					if(index<5){
+						news.push({
+							title: muisc.title,
+							description: muisc.singer,
+							picUrl: muisc.image,
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + muisc._id
+						});
+					}
+				})
+			}else if(message.EventKey === 'music_car'){
+				let cat = yield Music.findMusicsByCate('不灭的经典');
+				cat.muiscs.forEach(function(muisc,index){
+					if(index<5){
+						news.push({
+							title: muisc.title,
+							description: muisc.singer,
+							picUrl: muisc.image,
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + muisc._id
+						});
+					}
+				})
+			}else if(message.EventKey === 'music_duo'){
+				let cat = yield Music.findMusicsByCate('豆瓣音乐250');
+				cat.muiscs.forEach(function(muisc,index){
+					if(index<5){
+						news.push({
+							title: muisc.title,
+							description: muisc.singer,
+							picUrl: muisc.image,
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + muisc._id
+						});
+					}
+				})
+			}else if(message.EventKey === 'help'){
+				news = help
+			}
+			this.body = news;
 		}
 	}else if(message.MsgType === 'text'){
 		var content = message.Content;
@@ -90,7 +175,7 @@ exports.reply = co.wrap(function* (next) {
 							title: movie.title,
 							description: movie.title,
 							picUrl: movie.poster,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jump/' + movie._id
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
 						});
 					}
 				})
@@ -113,7 +198,7 @@ exports.reply = co.wrap(function* (next) {
 							title: movie.title,
 							description: movie.title,
 							picUrl: movie.poster,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jump/' + movie._id
+							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
 						});
 					}
 				})

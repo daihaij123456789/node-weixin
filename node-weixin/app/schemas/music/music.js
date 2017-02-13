@@ -7,6 +7,7 @@ var mongoose = require('mongoose'),
 var MusicSchema = new Schema({
 	title: String, 											// 标题
 	altTitle: String, 									// 别名
+	doubanId: String,                   // 豆瓣Id微信
 	singer: String, 										// 歌手
 	version: String, 										// 专辑类型
 	media: String, 											// 介质

@@ -1,17 +1,17 @@
 'use strict'
-var Movie = require('../models/movie/movie')
+var Music = require('../models/music/music')
 var co = require('co');
 var koa_request = require('koa-request')
 var Promise = require('bluebird');
 var _ = require('lodash')
 var request = Promise.promisify(require('request'));
-var Category = require('../models/movie/movie_category')
-    //movie首页
+var Category = require('../models/music/music_category')
+    //music首页
 exports.findAll = co.wrap(function*() {
     var categories = yield Category
         .find({})
         .populate({
-            path: 'movies',
+            path: 'musics',
             select: 'title poster',
             options: { limit: 6 }
         })
@@ -23,7 +23,7 @@ exports.searchByCategory = co.wrap(function*(catId) {
     var categories = yield Category
         .find({})
         .populate({
-            path: 'movies',
+            path: 'musics',
             select: 'title poster',
             options: { limit: 6 }
         })
@@ -33,28 +33,28 @@ exports.searchByCategory = co.wrap(function*(catId) {
 
 // searchByName 搜索页面
 exports.searchByName = co.wrap(function*(q) {
-    var movies = yield Movie
+    var musics = yield Music
         .find({ title: new RegExp(q + '.*', 'i') })
         .exec()
-    return movies
+    return musics
 
 })
 // 最热最冷搜索页面
-exports.findHotMovies = co.wrap(function*(hot, count) {
-    var movies = yield Movie
+exports.findHotMusics = co.wrap(function*(hot, count) {
+    var musics = yield Music
         .find({})
         .sort({'pv':hot})
         .limit(count)
         .exec()
-    return movies
+    return musics
 
 })
 // 分类搜索页面
-exports.findMoviesByCate = co.wrap(function*(cat) {
+exports.findMusicsByCate = co.wrap(function*(cat) {
     var category = yield Category
         .findOne({name:cat})
         .populate({
-            path:'movies',
+            path:'musics',
             select:'title poster _id'
         })
         .exec();
@@ -64,16 +64,15 @@ exports.findMoviesByCate = co.wrap(function*(cat) {
 
 // searchById 搜索页面
 exports.searchById = co.wrap(function*(id) {
-    var movie = yield Movie
+    var music = yield Music
         .findOne({ _id: id })
         .exec()
-    return movie
-
+    return music
 })
-
-function updateMovies(movie) {
+/*
+function updateMovies(music) {
     var options = {
-        url: 'http://api.douban.com/v2/movie/subject/' + movie.doubanId,
+        url: 'http://api.douban.com/v2/music/subject/' + music.doubanId,
         json: true,
     }
     request(options).then(function(response) {
@@ -128,42 +127,54 @@ function updateMovies(movie) {
             movie.save()
         }
     })
-}
+}*/
 // searchByDouban 搜索页面
 exports.searchByDouban = co.wrap(function*(q) {
     var options = {
-        url: 'http://api.douban.com/v2/movie/search?q='
+        url: 'https://api.douban.com/v2/music/search?q='
     }
     options.url += encodeURIComponent(q)
     var response = yield koa_request(options);
     var data = JSON.parse(response.body);
-    var subjects = [];
-    var movies = []
-    if (data && data.subjects) {
-        subjects = data.subjects
+    var musics = []
+    var newMusics = [];
+    if (data && data.musics) {
+        musics = data.musics
     }
-    if (subjects.length > 0) {
+    if (musics.length > 0) {
         var queryArray = [];
-        subjects.forEach(function(item, index) {
+        musics.forEach(function(item, index) {
             if (index < 5) {
                 queryArray.push(function*() {
-                    var movie = yield Movie.findOne({ doubanId: item.id });
-                    if (movie) {
-                        movies.push(movie)
+                    var music = yield Music.findOne({ doubanId: item.id });
+                    if (music) {
+                        newMusics.push(music)
                     } else {
-                        var directors = item.directors || [];
-                        var director = directors[0] || {};
-                        movie = new Movie({
-                            director: director.name || '',
+                    	if (data.rating) {
+			                var rating = data.rating.average; // 豆瓣评分
+			            }
+                    	if (data.attrs) {
+			            	var media = data.attrs.media;
+			            	var pubdate = data.attrs.pubdate;
+			            	var version = data.attrs.version;
+			            	var singer = data.attrs.singer;
+			            	var publisher = data.attrs.publisher;
+			            	var summary = data.attrs.tracks;
+			            };
+                        music = new Music({
                             title: item.title || '',
                             doubanId: item.id,
-                            poster: item.images.large || '',
-                            year: item.year || '',
-                            genres: item.genres || [],
+                            image: item.image || '',
+			                media: media || '',
+			                summary: summary || '',
+			                rating: rating || '',
+			                version: version || '',
+			                singer:singer|| '',
+			                publisher:publisher|| '',
 
                         })
-                        movie = yield movie.save();
-                        movies.push(movie)
+                        music = yield music.save();
+                        newMusics.push(music);
                     }
                 })
             }
@@ -172,61 +183,5 @@ exports.searchByDouban = co.wrap(function*(q) {
         yield queryArray
 
     }
-    movies.forEach(function(movie) {
-        var options = {
-            url: 'http://api.douban.com/v2/movie/subject/' + movie.doubanId,
-            json: true,
-        }
-        request(options).then(function(response) {
-            var data = response.body;
-            if (data.countries) {
-                var country = data.countries[0]
-            }
-            if (data.rating) {
-                var rating = data.rating.average; // 豆瓣评分
-            }
-            if (data.casts) {
-                var castNames = '';
-                data.casts.forEach(function(item, index) {
-                    castNames += item.name;
-                    // 最后一个主演不添加'/'
-                    if (index < data.casts.length - 1) {
-                        castNames += '/';
-                    }
-                });
-            }
-            _.extend(movie, {
-                country: country || '',
-                summary: data.summary || '',
-                rating: rating || '',
-                casts: castNames || ''
-            })
-            var genres = movie.genres;
-
-            if (genres && genres.length > 0) {
-                var cateArray = [];
-                genres.forEach(function(genre) {
-                    cateArray.push(function*() {
-                        var cat = yield Category.findOne({ name: genre }).exce();
-                        if (cat) {
-                            cat.movies.push(movie._id);
-                            yield cat.save()
-                        } else {
-                            cat = new Category({
-                                name: genre,
-                                movies: [movie._id]
-                            })
-                            cat = yield cat.save();
-                            movie.category = cat._id;
-                        }
-                    })
-                })
-                co.wrap(function*() {
-                    yield cateArray
-                })
-            }
-           movie.save()
-        })
-    })
-    return movies
+    return newMusics
 })

@@ -1,50 +1,55 @@
 'use strict'
 module.exports = {
     'button': [{
-        'type': 'click',
-        'name': '菜单',
-        'key': 'dahai_movie'
-    }, {
-        'name': '大海电影',
+        'name': '电影排行榜',
         'sub_button': [{
-            'type': 'view',
-            'name': '搜索',
-            'url': 'http://www.baidu.com/'
+            'type': 'click',
+            'name': '本周最热',
+            'key': 'movie_hot'
         }, {
-            'type': 'scancode_push',
-            'name': '扫码推事件',
-            'key': 'rselfmenu_0_1'
-        }, {
-            'type': 'scancode_waitmsg',
-            'name': '扫码带提示',
-            'key': 'rselfmenu_0_0'
-        }, {
-            'type': 'pic_sysphoto',
-            'name': '系统拍照发图',
-            'key': 'rselfmenu_1_0'
-        }, {
-            'type': 'pic_photo_or_album',
-            'name': '拍照或者相册发图',
-            'key': 'rselfmenu_1_1'
+            'type': 'click',
+            'name': '最冷的',
+            'key': 'movie_cold'
+        },{
+            'name': '正在上映',
+            'type': 'click',
+            'key': 'movie_action'
+        },{
+            'name': '即将上映',
+            'type': 'click',
+            'key': 'movie_car'
+        },{
+            'name': '本周口碑榜',
+            'type': 'click',
+            'key': 'movie_k'
         }]
     }, {
-        'name': '大海音乐',
+        'name': '音乐排行榜',
         'sub_button': [{
-            'type': 'pic_weixin',
-            'name': '微信相册发图',
-            'key': 'rselfmenu_1_2',
+            'type': 'click',
+            'name': '本周单曲榜最热',
+            'key': 'music_hot'
         }, {
-            'name': '发送位置',
-            'type': 'location_select',
-            'key': 'rselfmenu_2_0'
-        }/*, {
-            'type': 'media_id',
-            'name': '图片',
-            'media_id': ' '
-        }, {
-            'type': 'view_limited',
-            'name': '图文消息',
-            'media_id': 'MEDIA_ID2'
-        }*/]
-    }]
+            'type': 'click',
+            'name': '最冷的',
+            'key': 'music_cold'
+        },{
+            'type': 'click',
+            'name': '编辑推荐',
+            'key': 'music_b',
+        },{
+            'name': '不灭的经典',
+            'type': 'click',
+            'key': 'music_car'
+        },{
+            'name': '豆瓣音乐250',
+            'type': 'click',
+            'key': 'music_duo'
+        }
+        ]
+    },{ 
+            'type': 'click',
+            'name': '帮助',
+            'key': 'help',
+        }]
 }

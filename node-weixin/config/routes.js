@@ -31,8 +31,10 @@ router.use(co.wrap(function*(ctx, next) {
     }))
 // 微信
 router.get('/voiceMovie', Game.guess)
-router.get('/wechat/movie/:id', Game.find)
-router.get('/wechat/jump/:id', Game.jump)
+router.get('/wechat/movie/:id', Game.findMovie)
+router.get('/wechat/music/:id', Game.findMusic)
+router.get('/wechat/jumpMovie/:id', Game.jumpMovie)
+router.get('/wechat/jumpMusic/:id', Game.jumpMusic)
 router.get('/wx', Wechat.hear)
 router.post('/wx', Wechat.hear)
 
