@@ -1,4 +1,4 @@
-#采用koa2开发movie-weixin网站，[网站地址](http://dahaimovie.tunnel.qydev.com)
+#采用koa2开发movie-weixin-music网站，[网站地址](http://dahaimovie.tunnel.qydev.com)
 ##本项目基于Scott的7天公众号开发课程与Loogeek的源码之上改写电影和音乐网站。Loogeek的源码的[github地址](https://github.com/Loogeek/douban_Website)。<br/>
 `注意：（npm安装参考这里，注意ccap模块在window下，必须先安装Python与vs2015(c++编译环境)）`
 <br/>技术堆栈：nodejs +koa2 +gulp +jade +weixinApi。
