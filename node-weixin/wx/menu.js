@@ -1,7 +1,7 @@
 'use strict'
 module.exports = {
     'button': [{
-        'name': '电影排行榜',
+        'name': '大海电影',
         'sub_button': [{
             'type': 'click',
             'name': '本周最热',
@@ -24,7 +24,7 @@ module.exports = {
             'key': 'movie_k'
         }]
     }, {
-        'name': '音乐排行榜',
+        'name': '大海音乐',
         'sub_button': [{
             'type': 'click',
             'name': '本周单曲榜最热',

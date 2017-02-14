@@ -144,7 +144,7 @@ exports.searchByDouban = co.wrap(function*(q) {
     if (musics.length > 0) {
         var queryArray = [];
         musics.forEach(function(item, index) {
-            if (index < 5) {
+            if (index < 6) {
                 queryArray.push(function*() {
                     var music = yield Music.findOne({ doubanId: item.id });
                     if (music) {

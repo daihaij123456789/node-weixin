@@ -145,7 +145,7 @@ exports.searchByDouban = co.wrap(function*(q) {
     if (subjects.length > 0) {
         var queryArray = [];
         subjects.forEach(function(item, index) {
-            if (index < 5) {
+            if (index < 6) {
                 queryArray.push(function*() {
                     var movie = yield Movie.findOne({ doubanId: item.id });
                     if (movie) {
