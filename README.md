@@ -17,5 +17,5 @@ lodash工具模块作数据或者对象合并。<br/>
 使用moment模块格式化电影存储时间;`(注意与express差距，坑)` <br>
 `注意：自己采用Jquery改写音乐歌词同步，现在快进有一点小bug，欢迎修改`。 <br>
 ##本地开发环境搭建:<br/>
-采用window系统，IED:sublime-text3<br/>
+采用window系统，IDE:sublime-text3<br/>
 使用gulp集成jshint对JS语法检查，Sass文件编译、压缩等功能，使用mocha完成用户注册存储等步骤的简单单元测试，以及服务器的自动重启等功能。<br>
