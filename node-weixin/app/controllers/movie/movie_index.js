@@ -95,7 +95,7 @@ exports.index = co.wrap(function*(ctx,next){
 exports.search = co.wrap(function*(ctx,next) {
   var catId = ctx.query.cat || '',           // 获取电影分类查询串ID
       q = ctx.query.q || '',                 // 获取搜索框提交内容
-      page = parseInt(req.query.p, 10) || 0, // 获取页面
+      page = parseInt(ctx.query.p, 10) || 0, // 获取页面
       count = 6,
       index = page * count;                  // 每页展示6条数据
   // 如果包含catId，则是点击了相应的电影分类标题，进入results页面显示相应电影分类的电影

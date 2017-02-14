@@ -3,7 +3,6 @@ extends ../../includes/layout
 block link
   link(href="/libs/css/include/detail.min.css" rel="stylesheet")
   link(href="/libs/css/music/music_detail.min.css" rel="stylesheet")
-  link(href="/libs/css/include/APlayer.min.css" rel="stylesheet")
 block content
   .container
     .row
@@ -56,7 +55,7 @@ block content
               h4 评论区
               #comments
                 if music
-                  form#commentForm(method="POST" action="/admin/music/musicComment")
+                  form#commentForm(method="POST" action="/admin/music/comment")
                     input(type="hidden" name="comment[music]" value="#{music._id}")
                   if user
                     input(type="hidden" name="comment[from]" value="#{user._id}")
