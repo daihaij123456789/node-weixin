@@ -22,7 +22,7 @@ exports.index = co.wrap(function*(ctx, next) {
                 select: 'title image singer',
                 options: { limit: 8 } //限制最多8条数据
             })
-            .exec().exec();
+            .exec();
         ctx.body = { data: musicCategory };
         // 如果是热门歌单部分发送Ajax请求
     } else if (hotProName) {
@@ -33,7 +33,7 @@ exports.index = co.wrap(function*(ctx, next) {
                 select: 'name musics',
                 options: { limit: 6 } //限制最多6条数据
             })
-            .exec().exec();
+            .exec();
         // 获取近期热门歌单最热、流行、摇滚等歌曲分类
         if (programme) {
             var musicCategories = programme.musicCategories, // 查找该榜单包含的歌曲分类
@@ -69,7 +69,7 @@ exports.index = co.wrap(function*(ctx, next) {
                 select: 'title image singer pv',
                 options: { limit: 10 } //限制最多10条数据
             })
-            .exec().exec();
+            .exec();
         ctx.body = { data: musicCategory };
         // 没有Ajax请求，则是渲染整个音乐首页
     } else {

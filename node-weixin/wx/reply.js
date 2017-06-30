@@ -10,8 +10,8 @@ var help = '欢迎订阅大海休闲\n' +
 			'回复1+电影名字(如1功夫),查询电影信息\n' +
 			'回复2+音乐名字(如2包容),查询音乐信息\n' +
 			'回复语音,使用语音查询信息\n' +
-			'点击 <a href="http://dahaimovie.tunnel.qydev.com/voiceMovie">语音查电影</a>'+
-			'点击 <a href="http://dahaimovie.tunnel.qydev.com/voiceMusic">语音查音乐</a>';
+			'点击 <a href="http://www.xuankuangren.com:3000/voiceMovie">语音查电影</a>'+
+			'点击 <a href="http://www.xuankuangren.com:3000/voiceMusic">语音查音乐</a>';
 exports.reply = co.wrap(function* (next) {
 	var message = this.weixin;
 	if(message.MsgType==='event'){
@@ -31,7 +31,7 @@ exports.reply = co.wrap(function* (next) {
 							title: movie.title,
 							description: movie.title,
 							picUrl: movie.poster,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMovie/' + movie._id
 						});
 				})
 			}else if(message.EventKey === 'movie_cold'){
@@ -41,7 +41,7 @@ exports.reply = co.wrap(function* (next) {
 							title: movie.title,
 							description: movie.title,
 							picUrl: movie.poster,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMovie/' + movie._id
 						});
 				})
 			}else if(message.EventKey === 'movie_action'){
@@ -53,7 +53,7 @@ exports.reply = co.wrap(function* (next) {
 							title: movie.title,
 							description: movie.title,
 							picUrl: movie.poster,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMovie/' + movie._id
 						});
 					}
 					
@@ -66,7 +66,7 @@ exports.reply = co.wrap(function* (next) {
 							title: movie.title,
 							description: movie.title,
 							picUrl: movie.poster,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMovie/' + movie._id
 						});
 					}
 				})
@@ -78,7 +78,7 @@ exports.reply = co.wrap(function* (next) {
 							title: movie.title,
 							description: movie.title,
 							picUrl: movie.poster,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMovie/' + movie._id
 						});
 					}
 				})
@@ -89,7 +89,7 @@ exports.reply = co.wrap(function* (next) {
 							title: muisc.title,
 							description: muisc.singer,
 							picUrl: muisc.image,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + muisc._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMusic/' + muisc._id
 						});
 				})
 			}else if(message.EventKey === 'music_cold'){
@@ -99,7 +99,7 @@ exports.reply = co.wrap(function* (next) {
 							title: muisc.title,
 							description: muisc.singer,
 							picUrl: muisc.image,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + muisc._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMusic/' + muisc._id
 						});
 				})
 			}else if(message.EventKey === 'music_b'){
@@ -110,7 +110,7 @@ exports.reply = co.wrap(function* (next) {
 							title: muisc.title,
 							description: muisc.singer,
 							picUrl: muisc.image,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + muisc._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMusic/' + muisc._id
 						});
 					}
 				})
@@ -122,7 +122,7 @@ exports.reply = co.wrap(function* (next) {
 							title: muisc.title,
 							description: muisc.singer,
 							picUrl: muisc.image,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + muisc._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMusic/' + muisc._id
 						});
 					}
 				})
@@ -134,7 +134,7 @@ exports.reply = co.wrap(function* (next) {
 							title: muisc.title,
 							description: muisc.singer,
 							picUrl: muisc.image,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + muisc._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMusic/' + muisc._id
 						});
 					}
 				})
@@ -151,14 +151,14 @@ exports.reply = co.wrap(function* (next) {
 				title : '电影首页',
 				description: '点击进入网站电影首页',
 				prcUrl:path.join(__dirname, '../public/images/movie/movieLogo.png'),
-				url: 'http://dahaimovie.tunnel.qydev.com/'
+				url: 'http://www.xuankuangren.com:3000/'
 			}]
 		}else if (content === '2') {
 			reply = [{
 				title : '音乐首页',
 				description: '点击进入网站音乐首页',
 				prcUrl:path.join(__dirname, '../public/images/music/musicLogo.png'),
-				url: 'http://dahaimovie.tunnel.qydev.com/musicIndex'
+				url: 'http://www.xuankuangren.com:3000/musicIndex'
 			}]
 		}else {
 			if(content.slice(0, 1) === '1'){
@@ -176,7 +176,7 @@ exports.reply = co.wrap(function* (next) {
 								title: movie.title,
 								description: movie.title,
 								picUrl: movie.poster,
-								url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+								url: 'http://www.xuankuangren.com:3000/wechat/jumpMovie/' + movie._id
 							});
 						}
 					})
@@ -198,7 +198,7 @@ exports.reply = co.wrap(function* (next) {
 								title: music.title,
 								description: music.singer,
 								picUrl: music.image,
-								url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + music._id
+								url: 'http://www.xuankuangren.com:3000/wechat/jumpMusic/' + music._id
 							});
 						}
 					})
@@ -226,7 +226,7 @@ exports.reply = co.wrap(function* (next) {
 							title: movie.title,
 							description: movie.title,
 							picUrl: movie.poster,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMovie/' + movie._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMovie/' + movie._id
 						});
 					}
 				})
@@ -236,7 +236,7 @@ exports.reply = co.wrap(function* (next) {
 							title: music.title,
 							description: music.singer,
 							picUrl: music.image,
-							url: 'http://dahaimovie.tunnel.qydev.com/wechat/jumpMusic/' + music._id
+							url: 'http://www.xuankuangren.com:3000/wechat/jumpMusic/' + music._id
 						});
 					}
 				})

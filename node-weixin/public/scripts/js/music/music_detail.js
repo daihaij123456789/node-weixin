@@ -143,27 +143,11 @@ $(function() {
             }
         }
         for (i = 0; i < lrcLine.length; i++) {
-            html += '<p class="lyrics" tag=' + lrcTime[i] + '>' + lrcLine[i] + '</p>';
+            html += '<p name='+ i +' class="lyrics" tag=' + lrcTime[i] + '>' + lrcLine[i] + '</p>';
         }
         html += '</div></div>';
         $lrc.html(html)
-        /*var timer = setInterval(function() {
-            var now = new Date().getTime();
-            var elapsed = now - start;
-            if ($lrc.find('.lyrics').length) {
-                $lrc.find('.lyrics').each(function() {
-                    var isOK = elapsed / 1000 - ($(this).attr('tag'));
-                    if (isOK < 13 && isOK > 0) {
-                        $(this).addClass('activated').siblings('.lyrics').removeClass('activated');;
-                        if ($(this).prevAll('.lyrics').length > 8) {
-                            $('.lyrics-container2').animate({
-                                'top': '-=3px'
-                            });
-                        }
-                    }
-                });
-            }
-        }, 1000);*/
+        var lastnum = $lrc.find('.lyrics').last();
         var timer = setInterval(function () {
         	if (!currentTime) {
     			var currentTime = $('audio')[0].currentTime;
@@ -173,15 +157,28 @@ $(function() {
                             lrcIndex = index;
                             $(this).addClass('activated').siblings('.lyrics').removeClass('activated');;
                                 if ($(this).prevAll('.lyrics').length > 4) {
-                                    $('.lyrics-container2').animate({
-                                        'top': '-=30px'
+                                    var dos = (-30*($(this).attr('name')-3))+'px'
+                                    $('.lyrics-container2').css({
+                                        'top': dos
                                     });
                             	}
+                                
+                                    if($(this).attr('name') === lastnum.attr('name')){
+                                        var timer1 = setTimeout(function () {
+                                            $('.lyrics-container2').css({top:0});
+                                        }, 10000);
+                                        }
+                               
+                                    
                             }    
                             });
                     }
                 }
             },1000)
+        if ($lrc.find('.lyrics').attr('name') === lastnum.attr('name')) {
+            clearInterval(timer);
+        }
+        
         
     })
 

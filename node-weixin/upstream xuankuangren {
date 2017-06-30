@@ -1,0 +1,23 @@
+upstream xuankuangren {
+  server 127.0.0.1:3000; #这里设置你的node所监听的端口
+  keepalive 64;
+}
+
+server{
+  listen 80;  #监听80端口
+  server_name www.xuankuangren.com;  #设置服务名称
+  location / {   #服务是非静态文件，设置nodejs服务的反向代理
+      proxy_pass http://xuankuangren;  #这里http后面跟的是上方配置的 upstream 名
+      proxy_redirect off;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Nginx-Proxy true;
+      proxy_set_header Connection "";
+  }
+
+  location ~ ^/(img/|js/|css/|images/|flash/|media/)$ { #如果是静态文件 则劫持处理
+    root /.../wwwroot/...;  #你的静态资源目录绝对路径
+    access_log off;
+    expires max;
+  }
+}

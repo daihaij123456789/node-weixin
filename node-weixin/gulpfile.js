@@ -78,7 +78,7 @@ gulp.task('nodemon',function() {
   plugins.nodemon({ script: 'app',
     ignore: ['README.md', 'node_modules/**', '.DS_Store']
   });
-});
+});   
 
 // 默认任务
 gulp.task('default',['watch','nodemon']);

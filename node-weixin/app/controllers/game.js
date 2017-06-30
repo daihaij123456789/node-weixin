@@ -100,13 +100,13 @@ exports.findMusic = co.wrap(function* (ctx, next){
 })
 exports.jumpMovie = co.wrap(function* (ctx, next){
 	var movieId = ctx.params.id;
-	var redirectUrl = 'http://dahaimovie.tunnel.qydev.com/wechat/movie/' + movieId
+	var redirectUrl = 'http://www.xuankuangren.com:3000/wechat/movie/' + movieId
 	var url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='+wx.wechatOptions.wechat.appID+'&redirect_uri='+redirectUrl+'&response_type=code&scope=snsapi_base&state='+movieId+'#wechat_redirect';
 	ctx.redirect(url);
 })
 exports.jumpMusic = co.wrap(function* (ctx, next){
 	var musicId = ctx.params.id;
-	var redirectUrl = 'http://dahaimovie.tunnel.qydev.com/wechat/music/' + musicId
+	var redirectUrl = 'http://www.xuankuangren.com:3000/wechat/music/' + musicId
 	var url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='+wx.wechatOptions.wechat.appID+'&redirect_uri='+redirectUrl+'&response_type=code&scope=snsapi_base&state='+musicId+'#wechat_redirect';
 	ctx.redirect(url);
 })

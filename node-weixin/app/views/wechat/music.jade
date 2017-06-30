@@ -34,6 +34,12 @@ block content
 			.weui_article
 				section
 					p= music.summary
+			.panel-lyics(style="width:100%")
+				.textarea-lyics#lrc
+					pre.aplayer-lrc-content(style="display:none") #{music.lyric}
+				div#as
+					-var musicSrc = music.src ? music.src : ''
+					audio#audio-play(src=musicSrc, controls, data-id="#{music._id}")
 		.panel-heading
 			h4 评论区
 			ul.media-list#mediaList
@@ -74,6 +80,105 @@ block content
 					.weui_but_area
 						button#comments.weui_but.weui_but_primary(type='submit') 提交
 	script.
+		wx.config({
+		    debug: false,
+		    appId: 'wx9226474d248fd396',
+		    timestamp: '#{timestamp}',
+		    nonceStr: '#{noncestr}',
+		    signature: '#{signature}',
+		    jsApiList: ['startRecord', 'stopRecord', 'onVoiceRecordEnd', 'translateVoice', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone', 'previewImages','playVoice']
+		});
+		wx.ready(function () {
+			 wx.checkJsApi({
+		        jsApiList: ['playVoice'],
+		        success: function(res) {
+		            console.log(res)
+		        }
+		    });
+		    
+
+		})
+		$('#audio-play').on('play', function(){
+		    	var $this = $(this)
+		        var lrcIndex = 0
+		        var lrcTime = [];
+		        var lrcLine = [];
+		        var start = new Date().getTime();
+				$('.lyrics-container2').show();
+		        var $lrc = $('#lrc');
+		        var lrcs = $('.aplayer-lrc-content').html();
+		        console.log(lrcs)
+		        if(lrcs){
+		        	var lines = lrcs.split(/\n/);
+		        }
+		        
+		        var timeExp = /\[(\d{2}):(\d{2})\.(\d{3})]/;
+		        var lrcExp = /](.*)$/;
+		        var notLrcLineExp = /\[[A-Za-z]+:/;
+		        var html = '<div class="lyrics-container">';
+		        html += '<div class="lyrics-container2">'
+			        for (var i = 0; i < lines.length; i++) {
+			            lines[i] = lines[i].replace(/^\s+|\s+$/g, '');
+			            var oneTime = timeExp.exec(lines[i]);
+			            var oneLrc = lrcExp.exec(lines[i]);
+			            if (oneTime && oneLrc && !lrcExp.exec(oneLrc[1])) {
+			                lrcTime.push(parseInt(oneTime[1]) * 60 + parseInt(oneTime[2]) + parseInt(oneTime[3]) / 1000);
+
+			                lrcLine.push(oneLrc[1]);
+			            } else if (lines[i] && !notLrcLineExp.exec(lines[i])) {
+			                throw 'APlayer Error: lrc format error : should be like `[mm:ss.xx]lyric` : ' + lines[i];
+			            }
+			        }
+		        
+		       
+		        	for (i = 0; i < lrcLine.length; i++) {
+			            html += '<p name='+ i +' class="lyrics" tag=' + lrcTime[i] + '>'  + lrcLine[i] + '</p>';
+		        	}
+		        
+		        
+		        html += '</div></div>';
+		        $lrc.html(html)
+		        /*var timer = setInterval(function() {
+		            var now = new Date().getTime();
+		            var elapsed = now - start;
+		            if ($lrc.find('.lyrics').length) {
+		                $lrc.find('.lyrics').each(function() {
+		                    var isOK = elapsed / 1000 - ($(this).attr('tag'));
+		                    if (isOK < 13 && isOK > 0) {
+		                        $(this).addClass('activated').siblings('.lyrics').removeClass('activated');;
+		                        if ($(this).prevAll('.lyrics').length > 8) {
+		                            $('.lyrics-container2').animate({
+		                                'top': '-=3px'
+		                            });
+		                        }
+		                    }
+		                });
+		            }
+		        }, 1000);*/
+		        var timer = setInterval(function () {
+		        	if (!currentTime) {
+		    			var currentTime = $('audio')[0].currentTime;
+		            if (currentTime < lrcTime[lrcIndex] || currentTime >= lrcTime[lrcIndex + 1]) {
+		            	var lastnum = $lrc.find('.lyrics').last();
+		                $lrc.find('.lyrics').each(function(index, itme) {
+		                        if (currentTime >= $(this).attr('tag') && (!$(this).next().attr('tag') || currentTime < $(this).next().attr('tag'))) {
+		                            lrcIndex = index;
+		                            $(this).addClass('activated').siblings('.lyrics').removeClass('activated');;
+		                                if ($(this).attr('name') > 4 && $(this).attr('name')<lastnum) {
+		                                	var dos = (-33*($(this).attr('name')-3))+'px'
+		                                    $('.lyrics-container2').css('top',dos);
+
+		                            	}
+		                            	if($(this).attr('name') === lastnum.attr('name')){
+		                            		$('.lyrics-container2').css({top:0});
+		                            	}
+		                            }    
+		                            });
+		                    }
+		                }
+		            },1000)
+		        
+			})
 		$(function(){
 		    function padding(number) {
 		        return number < 10 ? '0' + number : '' + number;
@@ -127,7 +232,6 @@ block content
 		            },
 		            success: function(results) {
 		                var data = results.data || {};
-		                console.log(data)
 		                // 如果是对评论进行回复
 		                if (data.reply.length) {
 		                    var len = data.reply.length; // 回复评论人的条数
